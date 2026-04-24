@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyApex - Examen Étudiant</title>
+    <!-- Chargement de Tailwind CSS pour les utilities si on en a besoin plus tard + Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Notre CSS custom -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+    <!-- Supabase JS Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuration & DB JS -->
+    <script src="js/config.js" defer></script>
+    <script src="js/db.js" defer></script>
+    <script src="js/app.js" defer></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- HEADER -->
+        <header class="top-nav glass-panel">
+            <div class="logo">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 22h20L12 2z"></path>
+                </svg>
+                <span>PyApex</span>
+            </div>
+            <div class="student-info" id="student_info_display" style="display:none;">
+                <span id="display_email"></span>
+                <div class="timer" id="exam_timer">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- ZONE DE CONNEXION -->
+        <main id="login_section" class="centered-view">
+             <div class="login-card glass-panel">
+                 <h2>Accéder à l'Examen</h2>
+                 <p>Saisissez vos informations pour commencer test</p>
+                 <form id="login_form">
+                     <div class="form-group">
+                         <label for="student_email">Email (@etu.unilasalle.fr)</label>
+                         <input type="email" id="student_email" placeholder="prenom.nom@etu.unilasalle.fr" required>
+                     </div>
+                     <div class="form-group">
+                         <label for="exam_access_code">Code d'accès (4 chiffres)</label>
+                         <input type="text" id="exam_access_code" placeholder="1234" maxlength="4" required>
+                     </div>
+                     <button type="submit" class="btn btn-primary" id="btn_login" style="width: 100%;">Se Connecter & Démarrer</button>
+                     <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'" style="width: 100%; margin-top: 0.5rem;">Retour à l'accueil</button>
+                     <div id="login_error" class="error-msg"></div>
+                 </form>
+             </div>
+        </main>
+
+        <!-- ENVIRONNEMENT D'EXAMEN -->
+        <main id="exam_section" class="exam-view" style="display: none;">
+            <div class="left-panel glass-panel">
+                <div class="questions-nav" id="questions_nav_pills">
+                    <!-- Généré en JS (Question 1, Question 2...) -->
+                </div>
+                
+                <div id="question_content" class="question-body">
+                    <h2 id="q_title">Titre de la question</h2>
+                    <div class="q-difficulty" id="q_diff">Niveau: 1</div>
+                    <div class="q-statement" id="q_text">
+                        <!-- Enoncé Markdown rendu ici -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="editor-header">
+                    <span>Code Editor (Python)</span>
+                    <button id="btn_run" class="btn btn-secondary btn-small">Exécuter</button>
+                </div>
+                <!-- Monaco editor root -->
+                <div id="monaco_editor" class="editor-container"></div>
+                
+                <div class="console-header">
+                    <span>Console Output</span>
+                </div>
+                <div id="console_output" class="console-container">
+                    <!-- Logs & Errors -->
+                </div>
+
+                <div class="action-footer">
+                    <button id="btn_test" class="btn btn-secondary">Exécuter les Tests</button>
+                    <button id="btn_submit_exam" class="btn btn-primary">Soumettre l'Examen</button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- ÉCRAN DE FIN / VERROUILLAGE -->
+        <main id="finish_section" class="centered-view" style="display: none;">
+            <div class="login-card glass-panel text-center">
+                 <h2>Examen Soumis</h2>
+                 <p>Veuillez appeler votre professeur pour valider votre sortie d'examen.</p>
+                 <div class="form-group" style="margin-top: 1.5rem;">
+                     <input type="text" id="student_exit_code_input" placeholder="Code Professeur" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.2rem;">
+                 </div>
+                 <button class="btn btn-primary" id="btn_validate_exit">Valider la sortie</button>
+                 <div id="exit_error" class="error-msg" style="margin-top: 1rem;"></div>
+            </div>
+        </main>
+
+        <!-- ECRAN SORTIE VALIDEE -->
+        <main id="success_exit_section" class="centered-view" style="display: none;">
+            <div class="login-card glass-panel text-center">
+                 <h2>Sortie Validée ✅</h2>
+                 <p>Votre session d'examen est correctement clôturée. Vous pouvez fermer cette page ou retourner à l'accueil.</p>
+                 <button class="btn btn-secondary" onclick="window.location.href='index.html'" style="margin-top: 1.5rem;">Retour à l'accueil</button>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

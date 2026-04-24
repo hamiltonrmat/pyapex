@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyApex - Administration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script src="js/config.js" defer></script>
+    <script src="js/db.js" defer></script>
+    <script src="js/admin2.js" defer></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- LOGIN ADMIN -->
+        <main id="admin_login_section" class="centered-view">
+             <div class="login-card glass-panel">
+                 <h2>Panel Administrateur</h2>
+                 <form id="admin_login_form">
+                     <div class="form-group">
+                         <label for="admin_pwd">Mot de passe Administrateur</label>
+                         <input type="password" id="admin_pwd" required>
+                     </div>
+                     <button type="submit" class="btn btn-primary" style="width: 100%;">Accéder</button>
+                     <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'" style="width: 100%; margin-top: 0.5rem;">Retour à l'accueil</button>
+                     <div id="admin_login_error" class="error-msg"></div>
+                 </form>
+             </div>
+        </main>
+
+        <!-- DASHBOARD ADMIN -->
+        <main id="admin_dashboard" class="exam-view hidden" style="flex-direction: row;">
+            
+            <aside class="admin-sidebar glass-panel">
+                <div class="logo" style="margin-bottom: 2rem; padding-left: 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20L12 2z"></path></svg>
+                    PyApex Admin
+                </div>
+                <div class="nav-item active" data-target="view_themes">Thèmes</div>
+                <div class="nav-item" data-target="view_questions">Questions</div>
+                <div class="nav-item" data-target="view_exams">Examens</div>
+                <div style="flex:1"></div>
+                <div class="nav-item" id="btn_logout" style="color:var(--danger)">Déconnexion</div>
+            </aside>
+
+            <div class="admin-content glass-panel">
+                <!-- VUE THEMES -->
+                <div id="view_themes" class="admin-view">
+                    <div class="flex-between">
+                        <h2>Gestion des Thèmes</h2>
+                        <button class="btn btn-primary" onclick="adminUI.openThemeModal()">+ Nouveau Thème</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nom du thème</th>
+                                <th style="width: 180px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="themes_table_body">
+                            <!-- JS Injection -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- VUE QUESTIONS -->
+                <div id="view_questions" class="admin-view hidden">
+                    <div class="flex-between">
+                        <h2>Banque de Questions</h2>
+                        <button class="btn btn-primary" onclick="adminUI.openQuestionModal()">+ Nouvelle Question</button>
+                    </div>
+                    <!-- Filtrage -->
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                         <select id="filter_theme" class="form-group input" style="padding: 0.5rem; background:rgba(0,0,0,0.2); color:white; border: 1px solid var(--glass-border); border-radius: 6px;">
+                             <option value="">Tous les thèmes</option>
+                         </select>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Thème</th>
+                                <th>Difficulté</th>
+                                <th style="width: 180px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="questions_table_body">
+                            <!-- JS Injection -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- VUE EXAMENS -->
+                <div id="view_exams" class="admin-view hidden">
+                    <div class="flex-between">
+                        <h2>Sessions d'Examens</h2>
+                        <button class="btn btn-primary" onclick="adminUI.openExamModal()">+ Planifier un Examen</button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Titre</th>
+                                <th>Date & Heure</th>
+                                <th>Durée</th>
+                                <th>Code Accès</th>
+                                <th>Statut</th>
+                                <th style="width: 260px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exams_table_body">
+                            <!-- JS Injection -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- VUE EXAM DETAILS -->
+                <div id="view_exam_details" class="admin-view hidden">
+                    <div class="flex-between">
+                        <h2>Détails de l'Examen <span id="detail_exam_title" style="color:var(--primary); font-size:1.2rem;"></span></h2>
+                        <button class="btn btn-secondary" onclick="adminUI.closeExamDetails()">Retour aux examens</button>
+                    </div>
+                    <div class="glass-panel" style="margin: 1rem 0; padding: 1rem; border-color: var(--primary);">
+                        <p style="margin-bottom: 0.5rem;">Veuillez communiquer ce code d'accès aux participants pour qu'ils puissent démarrer :</p>
+                        <p style="font-size: 1.5rem; font-weight: 700;">Code d'accès : <span id="detail_exam_code" class="highlight-text"></span></p>
+                    </div>
+                    
+                    <h3 style="margin-bottom:1rem;">Liste des Étudiants inscrits</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email</th>
+                                <th>Code Sortie (Unique)</th>
+                                <th>Statut</th>
+                                <th>Score (/5)</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exam_students_table_body">
+                            <!-- JS Injection -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- MODALES (caching by default) -->
+        <!-- MODALE QUESTION -->
+        <div id="modal_question" class="modal-overlay hidden">
+            <div class="modal-container glass-panel">
+                <h2 id="modal_question_title">Créer une Question</h2>
+                <form id="form_question">
+                    <input type="hidden" id="q_id" value="">
+                    <div class="form-group">
+                        <label>Thème</label>
+                        <select id="q_theme" required class="full-width"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Difficulté (1 à 3)</label>
+                        <input type="number" id="q_diff" min="1" max="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="q_title_input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Énoncé (Markdown ou texte simple)</label>
+                        <textarea id="q_task" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Code Initial (Python)</label>
+                        <div id="q_code_editor" style="height: 150px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tests d'Exemples (JSON)</label>
+                        <div id="q_tests_editor" style="height: 120px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tests Cachés (Validation JSON)</label>
+                        <div id="q_val_editor" style="height: 120px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></div>
+                    </div>
+                    <div class="action-footer">
+                        <button type="button" class="btn btn-secondary" onclick="adminUI.closeQuestionModal()">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODALE EXAMEN -->
+        <div id="modal_exam" class="modal-overlay hidden">
+            <div class="modal-container glass-panel">
+                <h2 id="modal_exam_title">Planifier un Examen</h2>
+                <form id="form_exam">
+                    <input type="hidden" id="e_id" value="">
+                    <div class="form-group">
+                        <label>Titre de l'Examen</label>
+                        <input type="text" id="e_title" required placeholder="Python 1A - QCM 1">
+                    </div>
+                    <div class="form-group" style="display:flex; gap: 1rem;">
+                        <div style="flex:1">
+                            <label>Date</label>
+                            <input type="date" id="e_date" required>
+                        </div>
+                        <div style="flex:1">
+                            <label>Heure début</label>
+                            <input type="time" id="e_start" required>
+                        </div>
+                        <div style="flex:1">
+                            <label>Heure fin</label>
+                            <input type="time" id="e_end" required>
+                        </div>
+                        <div style="flex:1">
+                            <label>Durée (min)</label>
+                            <input type="number" id="e_duration" value="60" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Importer les Étudiants (CSV : email,prenom,nom)</label>
+                        <input type="file" id="e_csv" accept=".csv" required>
+                        <small id="e_csv_help" style="color:var(--text-muted); display:none;">(Optionnel en mode édition. Laissez vide pour conserver les étudiants existants.)</small>
+                    </div>
+                    <div class="form-group" id="e_questions_config_group">
+                        <label>Configuration des 5 questions (Thème et Difficulté)</label>
+                        <div style="display:flex; flex-direction:column; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 6px;">
+                            <div style="display:flex; gap: 1rem; align-items:center;">
+                                <span>Q1</span>
+                                <select class="q-theme-sel flex-1" required></select>
+                                <select class="q-diff-sel" required><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                            </div>
+                            <div style="display:flex; gap: 1rem; align-items:center;">
+                                <span>Q2</span>
+                                <select class="q-theme-sel flex-1" required></select>
+                                <select class="q-diff-sel" required><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                            </div>
+                            <div style="display:flex; gap: 1rem; align-items:center;">
+                                <span>Q3</span>
+                                <select class="q-theme-sel flex-1" required></select>
+                                <select class="q-diff-sel" required><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                            </div>
+                            <div style="display:flex; gap: 1rem; align-items:center;">
+                                <span>Q4</span>
+                                <select class="q-theme-sel flex-1" required></select>
+                                <select class="q-diff-sel" required><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                            </div>
+                            <div style="display:flex; gap: 1rem; align-items:center;">
+                                <span>Q5</span>
+                                <select class="q-theme-sel flex-1" required></select>
+                                <select class="q-diff-sel" required><option value="1">Niveau 1</option><option value="2">Niveau 2</option><option value="3">Niveau 3</option></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-footer">
+                        <button type="button" class="btn btn-secondary" onclick="adminUI.closeExamModal()">Annuler</button>
+                        <button type="submit" class="btn btn-primary" id="btn_save_exam">Planifier l'Examen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODALE COPIE ETUDIANT -->
+        <div id="modal_student_copy" class="modal-overlay hidden">
+            <div class="modal-container glass-panel" style="max-width: 800px; width: 90%;">
+                <h2 id="copy_title">Copie de l'étudiant</h2>
+                <h3 id="copy_score" style="color: var(--primary); margin-top: 5px;">Score : -/20</h3>
+                <div id="copy_answers_container" style="display:flex; flex-direction:column; gap: 1.5rem; max-height: 60vh; overflow-y: auto; margin-top: 1rem; padding-right: 10px;">
+                    <!-- Rempli par JS -->
+                </div>
+                <div class="action-footer" style="margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" onclick="adminUI.closeStudentCopy()">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
