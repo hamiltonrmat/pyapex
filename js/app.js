@@ -167,6 +167,11 @@ function renderQuestionNav() {
 window.loadQuestion = function(index) {
     if (index >= examQuestions.length || index < 0) return;
     
+    // --- NOUVEAU : Sauvegarder la console de la question en cours ---
+    if (examQuestions[currentQuestionIndex]) {
+        examQuestions[currentQuestionIndex].console_html = document.getElementById('console_output').innerHTML;
+    }
+
     // Update pills UI
     document.querySelectorAll('.nav-pill').forEach((el, i) => {
         if (i === index) el.classList.add('active');
@@ -178,10 +183,24 @@ window.loadQuestion = function(index) {
 
     document.getElementById('q_title').textContent = qData.title;
     document.getElementById('q_diff').textContent = `Difficulté : Niveau ${qData.difficulty}`;
-    document.getElementById('q_text').innerHTML = qData.task_text; // (For a true markdown rendering consider Marked.js, here using native mapping)
+    document.getElementById('q_text').innerHTML = qData.task_text; 
 
     if (monacoEditor) {
         monacoEditor.setValue(examQuestions[index].assigned_code);
+    }
+
+    // --- NOUVEAU : Restaurer la console de la nouvelle question ---
+    if (examQuestions[index].console_html !== undefined) {
+        // Restaurer l'historique de cette question
+        document.getElementById('console_output').innerHTML = examQuestions[index].console_html;
+        document.getElementById('console_output').scrollTop = document.getElementById('console_output').scrollHeight;
+    } else {
+        // C'est la première fois qu'on ouvre cette question.
+        // Si la console affiche le chargement de départ, on la laisse tranquille pour qu'elle finisse.
+        // Sinon, on met le texte par défaut "Prêt..."
+        if (!document.getElementById('console_output').innerHTML.includes('Loading Pyodide environment')) {
+            document.getElementById('console_output').innerHTML = '<div style="color:var(--text-muted);">Prêt... Exécutez du code pour voir la sortie console.</div>';
+        }
     }
 }
 
