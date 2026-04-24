@@ -1,8 +1,5 @@
-// Fichier js/config.js
-// Remplace ces valeurs par tes informations Supabase
-
-const SUPABASE_URL = "https://bkjfseezlnkdeufopqjo.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJramZzZWV6bG5rZGV1Zm9wcWpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NDk0MDcsImV4cCI6MjA5MTEyNTQwN30.e8ETZVIWY0hffO1oZmrnfwd9ST_Fw3kEyGKk7_qzs8g";
-
-// Unilasalle Admin password
-const ADMIN_PASSWORD = "apex42";
+// Ce fichier est généré automatiquement par server.py au démarrage
+// Ne pas modifier manuellement — configurez les variables d'environnement sur Render
+const SUPABASE_URL = "__SUPABASE_URL__";
+const SUPABASE_ANON_KEY = "__SUPABASE_ANON_KEY__";
+const ADMIN_PASSWORD = "__ADMIN_PASSWORD__";
